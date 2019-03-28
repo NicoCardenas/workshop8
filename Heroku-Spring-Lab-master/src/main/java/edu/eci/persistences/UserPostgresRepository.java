@@ -22,14 +22,26 @@ import java.util.UUID;
 @Qualifier("UserPostgresRepository")
 public class UserPostgresRepository implements IUserRepository {
 
-    private String dbUrl = "postgres://bszwywqnnjeono:2e4d9b9e5106e662cc32fa07f0a0e5320e3e96822df9bfc77ec56526ea49c664@ec2-23-21-106-241.compute-1.amazonaws.com:5432/d9eeqhj3l2fiom";
+    private String dbUrl = "jdbc:postgresql://ec2-23-21-106-241.compute-1.amazonaws.com:5432/d9eeqhj3l2fiom";
 
     @Autowired
     private DataSource dataSource;
 
     @Override
     public User getUserByUserName(String userName) {
-        return null;
+        String query = "SELECT * FROM users WHERE id = " + userName;
+
+        try(Connection connection = dataSource.getConnection()){
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            User user = new User();
+            user.setName(rs.getString("name"));
+            user.setId(UUID.fromString(rs.getString("id")));
+            return user;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -130,6 +142,10 @@ public class UserPostgresRepository implements IUserRepository {
         } else {
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(dbUrl);
+            config.setDriverClassName("org.postgresql.Driver");
+            config.setUsername("bszwywqnnjeono");
+            config.setPassword("2e4d9b9e5106e662cc32fa07f0a0e5320e3e96822df9bfc77ec56526ea49c664");
+            config.setMaximumPoolSize(10);
             return new HikariDataSource(config);
         }
     }
