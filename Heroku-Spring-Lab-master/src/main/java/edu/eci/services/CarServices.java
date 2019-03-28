@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CarServices implements ICarServices {
     
     @Autowired
@@ -16,27 +18,36 @@ public class CarServices implements ICarServices {
 
     @Override
     public List<Car> list() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return carRepository.findAll();
     }
 
     @Override
     public Car create(Car car) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(null == car.getId())
+            throw new RuntimeException("Id invalid");
+        else if(carRepository.find(car.getId()) != null)
+            throw new RuntimeException("The car exists");
+        else
+            carRepository.save(car);
+        return car;
     }
 
     @Override
     public Car get(String licence) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return carRepository.getCarByLicence(licence);
     }
 
     @Override
     public Car update(Car car) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        carRepository.update(car);
+        return carRepository.getCarByLicence(car.getLicencePlate());
     }
 
     @Override
     public Car delete(UUID id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Car del = carRepository.find(id);
+        carRepository.delete(del);
+        return del;
     }
     
 }

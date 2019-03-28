@@ -4,7 +4,9 @@ import edu.eci.models.Car;
 import edu.eci.persistences.repositories.ICarRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import static java.util.stream.Collectors.toList;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -31,32 +33,46 @@ public class CarMemoryRepository implements ICarRepository{
 
     @Override
     public List<Car> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return CarMemoryRepository.getContainer();
     }
 
     @Override
     public Car find(UUID id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Optional<Car> answer = CarMemoryRepository.getContainer()
+                .stream()
+                .filter(u -> id.equals(u.getId()))
+                .findFirst();
+        return answer.isPresent() ? answer.get() : null;
     }
 
     @Override
     public UUID save(Car entity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        CarMemoryRepository.getContainer().add(entity);
+        return entity.getId();
     }
 
     @Override
     public void update(Car entity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        CarMemoryRepository.carsContainer = CarMemoryRepository.getContainer()
+                .stream()
+                .map(u -> u.getId().equals(entity.getId()) ? entity : u)
+                .collect(toList());
     }
 
     @Override
     public void delete(Car o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        CarMemoryRepository.carsContainer = CarMemoryRepository.getContainer()
+                .stream()
+                .filter(u -> !u.getId().equals(o.getId()))
+                .collect(toList());
     }
 
     @Override
     public void remove(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        CarMemoryRepository.carsContainer = CarMemoryRepository.getContainer()
+                .stream()
+                .filter(u -> !u.getId().equals(id))
+                .collect(toList());
     }
     
 }
