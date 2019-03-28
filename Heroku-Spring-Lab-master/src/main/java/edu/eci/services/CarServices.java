@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class CarServices implements ICarServices {
     
     @Autowired
-    @Qualifier("CarMemoryRepository")
+    @Qualifier("CarPostgresRepository")
     private ICarRepository carRepository;
 
     @Override
