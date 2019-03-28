@@ -145,7 +145,7 @@ public class UserPostgresRepository implements IUserRepository {
             config.setDriverClassName("org.postgresql.Driver");
             config.setUsername("bszwywqnnjeono");
             config.setPassword("2e4d9b9e5106e662cc32fa07f0a0e5320e3e96822df9bfc77ec56526ea49c664");
-            config.setMaximumPoolSize(10);
+            config.setMaximumPoolSize(11);
             return new HikariDataSource(config);
         }
     }
