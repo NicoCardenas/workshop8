@@ -6,7 +6,6 @@ import edu.eci.models.User;
 import edu.eci.persistences.repositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,7 @@ import java.util.UUID;
 @Qualifier("UserPostgresRepository")
 public class UserPostgresRepository implements IUserRepository {
 
-    private String dbUrl = null;
+    private String dbUrl = "postgres://bszwywqnnjeono:2e4d9b9e5106e662cc32fa07f0a0e5320e3e96822df9bfc77ec56526ea49c664@ec2-23-21-106-241.compute-1.amazonaws.com:5432/d9eeqhj3l2fiom";
 
     @Autowired
     private DataSource dataSource;
@@ -56,27 +55,72 @@ public class UserPostgresRepository implements IUserRepository {
 
     @Override
     public User find(UUID id) {
-        return null;
+        String query = "SELECT * FROM users WHERE id = " + id;
+        
+        try(Connection connection = dataSource.getConnection()){
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);            
+            User user = new User();
+            user.setName(rs.getString("name"));
+            user.setId(UUID.fromString(rs.getString("id")));
+            return user;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public UUID save(User entity) {
-        return null;
+        String query = "INSERT INTO users(id, name) VALUES("+entity.getId().toString()+","+entity.getName()+")";
+
+        try(Connection connection = dataSource.getConnection()){
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            return UUID.fromString(rs.getString("id"));
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void update(User entity) {
+        String query = "UPDATE users SET name = "+entity.getName()+" WHERE id = " + entity.getId().toString();
 
+        try(Connection connection = dataSource.getConnection()){
+            Statement stmt = connection.createStatement();
+            stmt.executeQuery(query);            
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void delete(User o) {
+        String query = "DELETE FROM users WHERE id = "+ o.getId().toString();
 
+        try(Connection connection = dataSource.getConnection()){
+            Statement stmt = connection.createStatement();
+            stmt.executeQuery(query);            
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void remove(Long id) {
+        String query = "DELETE FROM users WHERE id = "+ UUID.fromString(id.toString());
 
+        try(Connection connection = dataSource.getConnection()){
+            Statement stmt = connection.createStatement();
+            stmt.executeQuery(query);            
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @Bean
